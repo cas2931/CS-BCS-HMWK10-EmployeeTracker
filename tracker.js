@@ -1,6 +1,7 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");  
-var cTable = require('console.table');
+var cTable = require('console.table'); 
+var chalk = require('chalk');
 
 require('dotenv').config();
 
@@ -20,6 +21,7 @@ var connection = mysql.createConnection({
     // run the start function after the connection is made to prompt the user
      home();
   }); 
+
 function home() {
     inquirer
     .prompt({
@@ -70,13 +72,98 @@ function home() {
         case "eXit":
         connection.end();
         break;
-        }
-      });
+        } 
+      }) 
+     
   }
-  function viewDepts(){} 
-  function viewRoles(){} 
-  function viewEmployees(){} 
-  function addDept(){} 
-  function addRole(){} 
-  function addEmployee(){} 
-  function UpdateEmplRole(){}
+    
+  function viewDepts(){
+   connection.query("SELECT * FROM department", function (err,results) {
+     if (err) throw err; 
+     console.table(results); 
+     home(); 
+   }) 
+  } 
+
+  function viewRoles(){
+    connection.query("SELECT * FROM role",function (err,results) {
+      if(err) throw err;
+      console.table(results); 
+      home(); 
+    })
+  } 
+
+  function viewEmployees(){
+    connection.query("SELECT * FROM employee", function (err, results) {
+      if (err) throw err;
+      console.table(results); 
+      home();
+    })
+  } 
+
+  function addDept(){
+    inquirer
+      .prompt({
+       name:'deptName',
+       type: 'input', 
+       message: 'What is the name of your new department?'
+     }) 
+     .then(function(answer) {
+       connection.query("INSERT into department SET ?", {name: answer.deptName}, function (err) {
+        if (err) throw err;
+        console.log(chalk.green("Your new department was added successfully!")); 
+        home();
+  }) 
+}) 
+  } 
+
+  function addRole(){ 
+    connection.query("SELECT * FROM department", function(err, res) {
+      if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name:'title',
+          type: 'input', 
+          message: 'What is the title of your new role?' 
+        }, 
+        {
+          name:'salary',
+          type: 'input', 
+          message: 'What is the salary of your new role?' 
+        },  
+        {
+          name:'deptSelect',
+          type: 'list', 
+          choices: function () {
+            let deptArr = [];
+            for (let i = 0; i < res.length; i++) {
+              deptArr.push(res[i].name);
+              }
+              return deptArr;
+          },
+      }
+  ]).then(function(answer) { 
+    let deptID;
+    for (let j = 0; j < res.length; j++) {
+        if (res[j].name === answer.deptSelect) {
+            deptID = res[j].id;
+        }
+    } 
+  connection.query("INSERT INTO role SET ?",
+    {
+        title: answer.title,
+        salary: answer.salary,
+        department_id: deptID
+    },
+    function (err, res) {
+        if(err)throw err;
+        console.log(chalk.green("Your new role was added successfully!"));
+        home();
+    }
+)
+  })
+    }) 
+      }
+ // function addEmployee(){} 
+  //function UpdateEmplRole(){}
