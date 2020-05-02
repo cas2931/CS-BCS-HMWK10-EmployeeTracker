@@ -135,6 +135,7 @@ function home() {
         {
           name:'deptSelect',
           type: 'list', 
+          message: 'Which department does this role fall under',
           choices: function () {
             let deptArr = [];
             for (let i = 0; i < res.length; i++) {
@@ -143,9 +144,9 @@ function home() {
               return deptArr;
           },
       }
-  ]).then(function(answer) { 
-    let deptID;
-    for (let j = 0; j < res.length; j++) {
+      ]).then(function(answer) { 
+        let deptID;
+      for (let j = 0; j < res.length; j++) {
         if (res[j].name === answer.deptSelect) {
             deptID = res[j].id;
         }
@@ -156,7 +157,7 @@ function home() {
         salary: answer.salary,
         department_id: deptID
     },
-    function (err, res) {
+    function (err) {
         if(err)throw err;
         console.log(chalk.green("Your new role was added successfully!"));
         home();
@@ -164,6 +165,9 @@ function home() {
 )
   })
     }) 
-      }
- // function addEmployee(){} 
+      } 
+      
+ function addEmployee(){
+   
+ } 
   //function UpdateEmplRole(){}
