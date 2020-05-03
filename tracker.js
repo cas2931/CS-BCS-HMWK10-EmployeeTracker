@@ -155,7 +155,7 @@ function home() {
     {
         title: answer.title,
         salary: answer.salary,
-        department_id: deptID
+        dept_id: deptID
     },
     function (err) {
         if(err)throw err;
@@ -168,6 +168,55 @@ function home() {
       } 
       
  function addEmployee(){
-   
- } 
+  connection.query("SELECT * FROM role", function (err, res) {
+    if (err) throw err;
+    
+    inquirer
+        .prompt([
+            {
+                name: "first_name",
+                type: "input", 
+                message: "First name of employee:",
+            },
+            {
+                name: "last_name",
+                type: "input", 
+                message: "Last name of employee:"
+              },
+              {
+                 name: "role", 
+                 type: "list", 
+                 message: "Role of employee:",
+                 choices: function() {
+                  var roleArr = [];
+                  for (let i = 0; i < res.length; i++) {
+                      roleArr.push(res[i].title);
+                  }
+                  return roleArr;
+                  },
+                  message: "What is this employee's role? "
+              }
+              ]).then(function (answer) {
+                  let roleID;
+                  for (let j = 0; j < res.length; j++) {
+                  if (res[j].title == answer.role) {
+                      roleID = res[j].id;
+                  }                  
+                  }  
+                  connection.query(
+                  "INSERT INTO employee SET ?",
+                  {
+                      first_name: answer.first_name,
+                      last_name: answer.last_name,
+                      role_id: roleID,
+                  },
+                  function (err) {
+                      if (err) throw err;
+                      console.log(chalk.green("Your employee has been added!"));
+                      home();
+                  }
+                  )
+              })
+      })
+  }
   //function UpdateEmplRole(){}
